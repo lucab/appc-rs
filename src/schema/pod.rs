@@ -2,6 +2,7 @@
 
 use serde_json;
 use std::path::PathBuf;
+use std::hash::{Hash, Hasher};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct App {
@@ -29,7 +30,7 @@ pub struct Image {
     pub labels: Option<Vec<super::NameValue>>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Eq)]
 #[serde(tag="kind")]
 pub enum Volume {
     #[serde(rename="empty")]
@@ -38,8 +39,32 @@ pub enum Volume {
     Host(VolumeHost),
 }
 
+impl Volume {
+    fn name(&self) -> &str {
+        match self {
+            &Volume::Empty(ref e) => &e.name,
+            &Volume::Host(ref h) => &h.name,
+        }
+    }
+}
+
+impl PartialEq for Volume {
+    fn eq(&self, other: &Volume) -> bool {
+        self.name() == other.name()
+    }
+}
+
+impl Hash for Volume {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        match self {
+            &Volume::Empty(ref e) => e.name.hash(state),
+            &Volume::Host(ref h) => h.name.hash(state),
+        }
+    }
+}
+
 /// A volume entry of kind `empty`.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Eq)]
 pub struct VolumeEmpty {
     pub name: super::AcName,
     pub mode: Option<String>,
@@ -49,14 +74,38 @@ pub struct VolumeEmpty {
     pub gid: Option<u32>,
 }
 
+impl PartialEq for VolumeEmpty {
+    fn eq(&self, other: &VolumeEmpty) -> bool {
+        self.name == other.name
+    }
+}
+
+impl Hash for VolumeEmpty {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
+}
+
 /// A volume entry of kind `host`.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Eq)]
 pub struct VolumeHost {
     pub name: super::AcName,
     pub source: PathBuf,
     #[serde(rename="readOnly")]
     pub readonly: Option<bool>,
     pub recursive: Option<bool>,
+}
+
+impl PartialEq for VolumeHost {
+    fn eq(&self, other: &VolumeHost) -> bool {
+        self.name == other.name
+    }
+}
+
+impl Hash for VolumeHost {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]

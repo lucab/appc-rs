@@ -1,3 +1,5 @@
+use std::collections;
+
 pub mod image;
 pub mod pod;
 
@@ -31,7 +33,7 @@ pub struct PodManifest {
     #[serde(rename = "acKind")]
     pub ac_kind: AcKind,
     pub apps: Vec<pod::App>,
-    pub volumes: Option<Vec<pod::Volume>>,
+    pub volumes: Option<collections::HashSet<pod::Volume>>,
     pub isolators: Option<Vec<pod::Isolator>>,
     pub annotations: Option<Vec<pod::Annotation>>,
     pub ports: Option<Vec<pod::Port>>,

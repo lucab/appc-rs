@@ -1,0 +1,17 @@
+{
+        "acVersion": "0.8.10",
+        "acKind": "PodManifest",
+        "apps": [
+        ],
+        "volumes": [
+                {
+                        "name": "simplename",
+                        "kind": "empty"
+                },
+                {
+                        "name": "simplename",
+                        "kind": "host",
+                        "source": "/tmp"
+                }
+        ]
+}
